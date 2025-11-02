@@ -1,4 +1,5 @@
 # train_timeseries_per_category.py
+# Most stable at Python 3.12.0 
 
 import warnings
 warnings.filterwarnings("ignore")
