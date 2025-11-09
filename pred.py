@@ -15,6 +15,7 @@ from math import sqrt
 
 try:
     import xgboost as xgb
+    import joblib
 except ImportError as e:
     raise SystemExit("Please install xgboost: pip install xgboost") from e
 
@@ -24,6 +25,8 @@ except ImportError as e:
 INPUT_CSV = "CleanedUpData.csv"
 OUTPUT_PROCESSED = "processed_for_ml.csv"
 OUTPUT_PREDICTIONS = "predictions_testset.csv"
+MODEL_XGB = "model.xgb"
+MODEL_PKL = "model.pkl"
 
 # Feature settings
 LAGS = [1, 2, 3]
@@ -197,6 +200,18 @@ def main():
 
     model = xgb.XGBRegressor(n_estimators=400, learning_rate=0.05, max_depth=6, subsample=0.8, colsample_bytree=0.9, random_state=RANDOM_SEED, n_jobs=0)
     model.fit(X_train, y_train)
+
+    model = xgb.XGBRegressor(n_estimators=400, learning_rate=0.05, max_depth=6, subsample=0.8, colsample_bytree=0.9, random_state=RANDOM_SEED, n_jobs=0)
+    model.fit(X_train, y_train)
+
+    # Save trained model
+    model.save_model(MODEL_XGB)
+    print(f"[Saved] XGBoost model -> {MODEL_XGB}")
+    try:
+        joblib.dump(model, MODEL_PKL)
+        print(f"[Saved] Pickled model -> {MODEL_PKL}")
+    except Exception as e:
+        print("[Warn] Could not pickle model:", e)   
 
     y_pred = model.predict(X_test)
     rmse = sqrt(mean_squared_error(y_test, y_pred))
